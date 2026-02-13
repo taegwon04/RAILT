@@ -110,7 +110,6 @@ class RAILTDecoder(nn.Module):
         self.emb_res = nn.Embedding(total_res, d_model, padding_idx=0)
         self.mem_init = nn.Parameter(torch.zeros(1, mem_len, d_model))
         nn.init.xavier_uniform_(self.mem_init)
-        self.mem_proj = nn.Linear(d_model, d_model)
 
         self.rma = RMABlock(d_model, n_heads, dropout, chunk_len, mem_len)
 
@@ -155,7 +154,7 @@ class RAILTDecoder(nn.Module):
             x = in_res
             L = x.size(1)
 
-        mem = self.mem_proj(enc_mem) if enc_mem is not None else self.mem_init.expand(x.size(0), -1, -1)
+        mem = self.mem_init.expand(x.size(0), -1, -1)
         chunks_out = []
 
         for start in range(0, L, self.chunk_len):
@@ -237,11 +236,11 @@ def random_data(bs, seq_len, total_prob, total_skill, total_res=2):
 
 in_prob, in_skill, in_res = random_data(64, seq_len, total_prob, total_skill, total_res)
 
-model = RAILT(d_model=128,
-              num_en=6,
-              num_de=6,
-              heads_en=8,
-              heads_de=8,
+model = RAILT(d_model=256,
+              num_en=2,
+              num_de=2,
+              heads_en=4,
+              heads_de=4,
               total_prob=total_prob,
               total_skill=total_skill,
               total_res=total_res,
